@@ -19,7 +19,10 @@ class VolSurface:
     def compute_surface(self, r=0.01):
         ivs = []
         for _, row in self.data.iterrows():
-            T = (pd.to_datetime(row['expiration']) - pd.to_datetime(row['date'])).days / 365
+            T = (
+                pd.to_datetime(row['expiration'], dayfirst=True) -
+                pd.to_datetime(row['date'], dayfirst=True)
+            ).days / 365
             if T <= 0:
                 ivs.append(np.nan)
                 continue
@@ -32,7 +35,9 @@ class VolSurface:
                 option_type = row['type']
             )
             ivs.append(iv)
-        self.data['implied_vol'] = ivs
+        self.data['implied_vol'] = ivs        
+        print(self.data['implied_vol'].describe())
+        print(self.data['implied_vol'].isna().sum(), "NaNs")
     
     def plot_surface(self):
         df = self.data.dropna(subset=['implied_vol'])
